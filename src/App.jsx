@@ -552,11 +552,11 @@ export default function AeroQuiz() {
 
   // PPL calculator plane + state
   const [pplPlaneId, setPplPlaneId] = useState("c172");
-  const [pplState, setPplState] = useState("TX");
+  const [pplState, setPplState] = useState("MO");
 
   // Trip calculator plane + state
   const [tripPlaneId, setTripPlaneId] = useState("c172");
-  const [tripState, setTripState] = useState("TX");
+  const [tripState, setTripState] = useState("MO");
   const [quizSeed, setQuizSeed] = useState(0);
 
   const [natoInput, setNatoInput] = useState("");
@@ -589,29 +589,7 @@ export default function AeroQuiz() {
   const [tripWindComponent, setTripWindComponent] = useState(0);
   const [tripAltFuel, setTripAltFuel] = useState(45);
 
-  // Auto-detect user's state from timezone first, then IP geolocation
-  useEffect(() => {
-    // Try timezone-based detection first (works without network)
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const tzToState = {
-        "America/New_York": "NY", "America/Chicago": "TX", "America/Denver": "CO",
-        "America/Los_Angeles": "CA", "America/Phoenix": "AZ", "America/Anchorage": "AK",
-        "Pacific/Honolulu": "HI", "America/Detroit": "MI", "America/Indiana/Indianapolis": "IN",
-        "America/Kentucky/Louisville": "KY", "America/Boise": "ID", "America/Juneau": "AK",
-      };
-      const tzState = tzToState[tz];
-      if (tzState) { setPplState(tzState); setTripState(tzState); return; }
-    } catch {}
-    // Fallback to IP geolocation
-    fetch("https://ipapi.co/json/")
-      .then(r => r.json())
-      .then(data => {
-        const region = data.region_code;
-        if (region && US_STATES.includes(region)) { setPplState(region); setTripState(region); }
-      })
-      .catch(() => {});
-  }, []);
+
 
   const pplPlane = PLANE_TYPES.find(p => p.id === pplPlaneId) || PLANE_TYPES[0];
   const tripPlane = PLANE_TYPES.find(p => p.id === tripPlaneId) || PLANE_TYPES[0];
@@ -866,9 +844,22 @@ Return ONLY valid JSON, no markdown:
         .input-field:focus { border-color:#4FC3F7; background:#0a1825; }
         input[type=number] {
           background:#0d1929 !important; color:inherit !important;
-          -webkit-appearance:none; appearance:none;
+          -webkit-appearance:none; appearance:textfield;
         }
-        input[type=range] { background:transparent; }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+          -webkit-appearance:none; margin:0;
+        }
+        input[type=range] {
+          -webkit-appearance:none; appearance:none;
+          background:transparent; outline:none; cursor:pointer;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+          height:4px; border-radius:2px; background:#1e2d45;
+        }
+        input[type=range]::-moz-range-track {
+          height:4px; border-radius:2px; background:#1e2d45;
+        }
         select {
           background:#0d1929 !important; color:inherit !important;
           -webkit-appearance:none; appearance:none;
@@ -882,8 +873,14 @@ Return ONLY valid JSON, no markdown:
         .filter-pill { padding:5px 14px; border-radius:20px; border:1.5px solid #1e2d45; background:transparent; color:#546e7a; cursor:pointer; font-size:12px; transition:all 0.2s; white-space:nowrap; font-family:'DM Sans',sans-serif; }
         .filter-pill:hover:not(.active) { border-color:#4FC3F7; color:#4FC3F7; background:rgba(79,195,247,0.1); }
         .filter-pill.active { border-color:#4FC3F7; color:#4FC3F7; background:rgba(79,195,247,0.1); }
-        .calc-slider { -webkit-appearance:none; width:100%; height:4px; border-radius:2px; background:#1e2d45; outline:none; }
-        .calc-slider::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#4FC3F7; cursor:pointer; box-shadow:0 0 8px rgba(79,195,247,0.4); }
+        .calc-slider { -webkit-appearance:none !important; appearance:none !important; width:100%; height:4px; border-radius:2px; background:#1e2d45 !important; outline:none; cursor:pointer; }
+        .calc-slider::-webkit-slider-runnable-track { height:4px; border-radius:2px; background:#1e2d45; }
+        .calc-slider::-webkit-slider-thumb { -webkit-appearance:none !important; appearance:none !important; width:20px; height:20px; border-radius:50%; background:#4FC3F7 !important; cursor:pointer; box-shadow:0 0 10px rgba(79,195,247,0.5); margin-top:-8px; }
+        .calc-slider::-moz-range-track { height:4px; border-radius:2px; background:#1e2d45; }
+        .calc-slider::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:#4FC3F7 !important; cursor:pointer; border:none; box-shadow:0 0 10px rgba(79,195,247,0.5); }
+        .chevron-select-wrap { position:relative; display:block; }
+        .chevron-select-wrap select { padding-right:32px !important; }
+        .chevron-select-wrap::after { content:""; position:absolute; right:10px; top:50%; transform:translateY(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid currentColor; pointer-events:none; }
         .glow-text { text-shadow: 0 0 20px rgba(79,195,247,0.4); }
         .streak-fire { animation: wiggle 0.4s ease; }
         .flying-cat-btn { display: none !important; }
@@ -909,13 +906,13 @@ Return ONLY valid JSON, no markdown:
         borderBottom: "1px solid #1e2d45",
         padding: "14px 24px", display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <a onClick={() => { setActiveTab("quiz"); setQuizScreen("menu"); }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", cursor: "pointer" }}>
           <div style={{ fontSize: 22 }}>✈️</div>
           <div>
             <div style={{ fontWeight: 900, fontSize: 18, letterSpacing: -0.5, color: "#fff" }}>My PPL School</div>
             <div style={{ fontSize: 10, color: "#4FC3F7", letterSpacing: 2, textTransform: "uppercase" }}>USA Study Hub</div>
           </div>
-        </div>
+        </a>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {activeTab === "quiz" && quizScreen === "quiz" && (
             <>
@@ -1602,17 +1599,21 @@ Return ONLY valid JSON, no markdown:
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
               <div style={{ background: "#0d1420", border: "1px solid #1e2d45", borderRadius: 12, padding: "14px" }}>
                 <div style={{ fontSize: 11, color: "#546e7a", marginBottom: 8, letterSpacing: 0.5 }}>Aircraft Type</div>
+                <div className="chevron-select-wrap" style={{ color: "#4FC3F7" }}>
                 <select value={pplPlaneId} onChange={e => setPplPlaneId(e.target.value)}
                   style={{ width: "100%", background: "#0d1929", border: "1.5px solid #4FC3F733", borderRadius: 8, color: "#4FC3F7", padding: "8px 10px", fontSize: 13, fontFamily: "'DM Mono',monospace", fontWeight: 700, outline: "none" }}>
                   {PLANE_TYPES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                 </select>
+                </div>
               </div>
               <div style={{ background: "#0d1420", border: "1px solid #1e2d45", borderRadius: 12, padding: "14px" }}>
                 <div style={{ fontSize: 11, color: "#546e7a", marginBottom: 8, letterSpacing: 0.5 }}>Your State</div>
+                <div className="chevron-select-wrap" style={{ color: "#81C784" }}>
                 <select value={pplState} onChange={e => setPplState(e.target.value)}
                   style={{ width: "100%", background: "#0d1929", border: "1.5px solid #81C78433", borderRadius: 8, color: "#81C784", padding: "8px 10px", fontSize: 13, fontFamily: "'DM Mono',monospace", fontWeight: 700, outline: "none" }}>
                   {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
+                </div>
               </div>
             </div>
             {/* State rate info */}
@@ -1753,19 +1754,23 @@ Return ONLY valid JSON, no markdown:
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 11, color: "#546e7a", marginBottom: 8, letterSpacing: 0.5 }}>Aircraft Type</div>
+                  <div className="chevron-select-wrap" style={{ color: "#4FC3F7" }}>
                   <select value={tripPlaneId}
                     onChange={e => { const p = PLANE_TYPES.find(x => x.id === e.target.value); setTripPlaneId(e.target.value); setTripSpeed(p.speed); setTripFuelBurn(p.burn); setTripRentalRate(p.state_avg[tripState] || p.wetRate); }}
                     style={{ width: "100%", background: "#0d1929", border: "1.5px solid #4FC3F733", borderRadius: 8, color: "#4FC3F7", padding: "8px 10px", fontSize: 13, fontFamily: "'DM Mono',monospace", fontWeight: 700, outline: "none" }}>
                     {PLANE_TYPES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                   </select>
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 11, color: "#546e7a", marginBottom: 8, letterSpacing: 0.5 }}>Your State</div>
+                  <div className="chevron-select-wrap" style={{ color: "#81C784" }}>
                   <select value={tripState}
                     onChange={e => { setTripState(e.target.value); setTripRentalRate(tripPlane.state_avg[e.target.value] || tripPlane.wetRate); }}
                     style={{ width: "100%", background: "#0d1929", border: "1.5px solid #81C78433", borderRadius: 8, color: "#81C784", padding: "8px 10px", fontSize: 13, fontFamily: "'DM Mono',monospace", fontWeight: 700, outline: "none" }}>
                     {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
+                  </div>
                 </div>
               </div>
               {tripPlaneId !== "other" && (

@@ -574,7 +574,7 @@ Use US-specific terminology: e.g. 'Private Pilot Certificate' not 'licence', FAR
 Return ONLY valid JSON, no markdown:
 {"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"answer":"A","explanation":"1-2 sentence explanation referencing FAA rules where applicable"}`;
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/.netlify/functions/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -800,7 +800,7 @@ Return ONLY valid JSON, no markdown:
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main style={{ position: "relative", zIndex: 1, maxWidth: 680, margin: "0 auto", padding: "24px 16px 100px" }}>
+      <main style={{ position: "relative", zIndex: 1, width: "100%", boxSizing: "border-box", padding: "24px 24px 100px", maxWidth: "100%" }}>
 
         {/* ══ QUIZ TAB ══ */}
         {activeTab === "quiz" && (

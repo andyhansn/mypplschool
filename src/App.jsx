@@ -574,7 +574,7 @@ Use US-specific terminology: e.g. 'Private Pilot Certificate' not 'licence', FAR
 Return ONLY valid JSON, no markdown:
 {"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"answer":"A","explanation":"1-2 sentence explanation referencing FAA rules where applicable"}`;
     try {
-      const res = await fetch("/.netlify/functions/claude", {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -675,9 +675,9 @@ Return ONLY valid JSON, no markdown:
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#060d1a",
+      minHeight: "100vh", width: "100%", background: "#060d1a",
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      color: "#e8eaf6", position: "relative", overflow: "hidden",
+      color: "#e8eaf6", position: "relative",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap');
@@ -758,7 +758,9 @@ Return ONLY valid JSON, no markdown:
 
       {/* Animated background */}
       <div className="grid-bg" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }} />
-      <CloudLayer />
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+        <CloudLayer />
+      </div>
       <div style={{ position: "fixed", top: -100, right: -100, width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(79,195,247,0.06) 0%, transparent 65%)", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "fixed", bottom: -150, left: -100, width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(102,187,106,0.04) 0%, transparent 65%)", pointerEvents: "none", zIndex: 0 }} />
 
@@ -768,9 +770,10 @@ Return ONLY valid JSON, no markdown:
       {/* ── HEADER ── */}
       <header style={{
         position: "sticky", top: 0, zIndex: 100,
-        background: "rgba(6,13,26,0.85)", backdropFilter: "blur(20px)",
+        width: "100%", boxSizing: "border-box",
+        background: "rgba(6,13,26,0.95)", backdropFilter: "blur(20px)",
         borderBottom: "1px solid #1e2d45",
-        padding: "12px 20px", display: "flex", justifyContent: "space-between", alignItems: "center",
+        padding: "14px 24px", display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ fontSize: 22, animation: "planeFly 4s ease-in-out infinite" }}>✈️</div>
